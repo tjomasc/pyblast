@@ -1,0 +1,6 @@
+include LICENCE
+include AUTHORS.md
+include README.md
+recursive-include pyblast/templates *
+recursive-include pyblast/static *
+recursive-include docs *
