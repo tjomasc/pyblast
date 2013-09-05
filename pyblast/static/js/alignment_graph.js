@@ -38,6 +38,7 @@ var alignments = {
             }
 
             var graph = $('.alignment-graph', this);
+            graph.html('');
             
             if(reverse) {
                 var x = d3.scale.linear().range([width-margin.left-margin.right, 0]);

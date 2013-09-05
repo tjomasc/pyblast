@@ -1,29 +1,12 @@
 $(document).ready(function(){
 
-    $('select[name="program"]').on('change', function() {
-        var selected = $(this).attr('value');
-        $.ajax({
-            type: 'GET',
-            url: OPTION_ENDPOINT,
-            data: {program: selected},
-            success: function(data) {
-                $('#blastoptions').html(data);
-            },
-            error: function() { //jqXHR, textStatus, errorThrown) {
-                //console.error(jqXHR, textStatus, errorThrown);
-                $('#blastoptions').html('Advanced options are currently unavailable');
-            },
-            dataType: 'html'
-        });
-    }).change();
-
     // Check the form before it is sent.
     $('.blast-form').submit(function() {
         var valid = true;
         $('.submit-error').remove();
         if($('textarea[name="sequence"]').attr('value') == '') {
             valid = false;
-            $('textarea[name="sequence"]').after('<p class="submit-error alert alert-error">Please enter a FASTA sequence to BLAST</p>');
+            $('textarea[name="sequence"]').after('<p class="submit-error alert alert-danger">Please enter a FASTA sequence to BLAST</p>');
         }
         if(valid) {
             return true;
@@ -36,14 +19,23 @@ $(document).ready(function(){
         var programs = $('select[name="program"]');
         var nopt = programs.children('optgroup[label="Nucleotide"]');
         var popt = programs.children('optgroup[label="Protein"]');
+        var existing = programs.find('option[selected="selected"]');
         if($(this).data('type') === 'prot') {
-            programs.children('input[selected="selected"]').removeAttr('selected');
-            popt.children(':first').attr('selected', 'selected');
+            programs.find('option[selected="selected"]').removeAttr('selected');
+            if(existing.length > 0 && popt.find('option[value="'+existing.attr('value')+'"]').length > 0) {
+                existing.attr('selected', 'selected');
+            } else {
+                popt.children(':first').attr('selected', 'selected');
+            }
             popt.show();
             nopt.hide();
         } else {
-            programs.children('input[selected="selected"]').removeAttr('selected');
-            nopt.children(':first').attr('selected', 'selected');
+            programs.find('option[selected="selected"]').removeAttr('selected');
+            if(existing.length > 0 && nopt.find('option[value="'+existing.attr('value')+'"]').length > 0) {
+                existing.attr('selected', 'selected');
+            } else {
+                nopt.children(':first').attr('selected', 'selected');
+            }
             nopt.show();
             popt.hide();
         }

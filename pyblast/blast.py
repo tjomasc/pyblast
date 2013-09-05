@@ -6,6 +6,8 @@ import hashlib
 import tempfile
 from lxml import etree
 
+from math_tools import percentile
+
 def get_blast_databases(exe_loc, db_loc):
     """ 
     Look for BLAST databases using in given path and return a list 
@@ -40,6 +42,17 @@ def get_sequence_from_database(exe_loc, db, seq_id):
         found = ''
     return found
 
+def parse_extra_options(option_string, exclude=[]):
+    """
+    Create an list of options filtering out excluded options
+    """
+    options = re.findall(r'((-\w+) ([\w\d\.]+)?)\s?', option_string)
+    extras = []
+    for o in options:
+        if o[1] not in exclude:
+            extras.extend(o[1:])
+    return extras
+
 def run_blast(database, program, filestore, file_uuid, sequence, options):
     """ 
     Perform a BLAST search on the given database using the given query 
@@ -53,16 +66,27 @@ def run_blast(database, program, filestore, file_uuid, sequence, options):
     
     """
 
-    query = [program, '-db', database, '-outfmt', '5', '-query', '-', '-out', "{0}/{1}.xml".format(filestore, file_uuid)]
-    #extra = [str(item) for sublist in options.iteritems() for item in sublist]
-
-    #query.extend(extra)
-    # Create a list containing all of the options (inc sequence)
-    #namequery = query[0:-1]
-    #namequery.append(sequence)
-    # Hash the above list to create a unique filename. This can then be used to look up if the
-    # query has been run before
-    #filename = hashlib.md5(repr(namequery)).hexdigest()
+    query = [program, '-db', database, '-outfmt', '5', '-query', '-', '-out', "{0}/{1}.xml".format(filestore, file_uuid), '-max_target_seqs', '50']
+    exclude = [
+        '-db',
+        '-query',
+        '-out',
+        '-subject',
+        '-html',
+        '-gilist',
+        '-negative_gilist',
+        '-entrez_query',
+        '-remote',
+        '-outfmt',
+        '-num_threads',
+        '-import_search_strategy',
+        '-export_search_strategy',
+        '-window_masker_db',
+        '-index_name',
+        '-use_index',
+    ]
+    extra = parse_extra_options(options, exclude)
+    query.extend(extra)
 
     p = subprocess.Popen(query, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=-1)
     stdout, stderr = p.communicate(sequence)
@@ -82,6 +106,12 @@ def poll(name):
 def chunk_string(s, l=10):
     return [s[i:i+l] for i in range(0,len(s),l)]
 
+def format_bases(bases):
+    formatted = ''
+    for b in bases:
+        formatted += '<span class="base-{}">{}</span>'.format(b,b)
+    return formatted
+        
 def create_formatted_sequences(hsp):
 
     query = chunk_string(hsp['query_seq'], 60)
@@ -100,14 +130,17 @@ def create_formatted_sequences(hsp):
         subject_from = int(hsp['hit_from']) if ln == 0 else int(hsp['hit_from'])+(ln*60)
         subject_to = subject_from+59
 
+        qseq = format_bases(line)
+        sseq = format_bases(subject[ln])
+
         output += """
 Query    {qsnum}  {qseq}  {qenum}
          {mspad}  {match}
 Subject  {ssnum}  {sseq}  {senum}
-""".format(qseq=line,
+""".format(qseq=qseq,
     match=match[ln],
     mspad="".join([" " for i in range(pad)]),
-    sseq=subject[ln],
+    sseq=sseq,
     qsnum=str(query_from).rjust(pad),
     qenum=query_to,
     ssnum=str(subject_from).rjust(pad),
@@ -116,7 +149,7 @@ Subject  {ssnum}  {sseq}  {senum}
 
     return output.rstrip()
 
-def process_blast_result(filecontents):
+def process_blast_result(filecontents, cutoff=0.0001):
     """
     With the give contents proccess the blast results into a usable format
     """
@@ -161,6 +194,18 @@ def process_blast_result(filecontents):
                 },
                 'hits': []
             }
+
+            '''
+            bit_score = []
+            for ht in it.findall('Iteration_hits/Hit'):
+                for hs in ht.findall('.//Hsp'):
+                    bit_score.append(float(hs.xpath('string(Hsp_bit-score/text())')))
+            if show_all:
+                bit_score_filter = 0
+            else:
+                bit_score_filter = percentile(bit_score, 0.25)
+            print bit_score_filter
+            '''
             for ht in it.findall('Iteration_hits/Hit'):
                 h = {
                     'num': ht.xpath('string(Hit_num/text())'),
@@ -200,16 +245,18 @@ def process_blast_result(filecontents):
                     if hsp['query_to'] > query_to:
                         query_to = hsp['query_to']
                     '''
-                    query_from.append(int(hsp['query_from']))
-                    query_to.append(int(hsp['query_to']))
-                    hsp['formatted'] = create_formatted_sequences(hsp)
-                    h['hsps'].append(hsp)
-                if sum(query_from) > sum(query_to):
-                    h['query_from'] = max(query_from)
-                    h['query_to'] = min(query_to)
-                else:
-                    h['query_from'] = min(query_from)
-                    h['query_to'] = max(query_to)
-                r['hits'].append(h)
+                    if float(hsp['evalue']) < cutoff: #float(hsp['bit_score']) > bit_score_filter:
+                        query_from.append(int(hsp['query_from']))
+                        query_to.append(int(hsp['query_to']))
+                        hsp['formatted'] = create_formatted_sequences(hsp)
+                        h['hsps'].append(hsp)
+                if len(h['hsps']) > 0:
+                    if sum(query_from) > sum(query_to):
+                        h['query_from'] = max(query_from)
+                        h['query_to'] = min(query_to)
+                    else:
+                        h['query_from'] = min(query_from)
+                        h['query_to'] = max(query_to)
+                    r['hits'].append(h)
             results['results'].append(r)
     return results

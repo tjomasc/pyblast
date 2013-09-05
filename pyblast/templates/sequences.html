@@ -1,0 +1,26 @@
+{% extends layout_template %}
+
+{% block title %}
+    <title>{{title}}</title>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Retrieved Sequences</h1>
+        <ul class="nav nav-tabs nav-justified">
+            {% for r in results %}
+                <li class="{% if loop.index == 1 %}active{% endif %}"><a href="#tab-{{r.0}}" data-toggle="tab">{{r.0}}</a></li>  
+            {% endfor %}
+        </ul>
+
+        <div class="tab-content">
+        {% for r in results %}
+            <div class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="tab-{{r.0}}">
+                <pre class="sequence">{{r.1}}</pre>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <script src="{{ settings.get('STATIC_URL') }}js/jquery-1.8.2.min.js"></script>
+    <script src="{{ settings.get('STATIC_URL') }}js/bootstrap.min.js"></script>
+{% endblock %}
