@@ -1,4 +1,8 @@
 $(document).ready(function(){
+    
+    // visual tweaks to make database + program box heights the same 
+    var db_box = $('.box-database');
+    $('.box-program').height(db_box.height()+1);
 
     // Check the form before it is sent.
     $('.blast-form').submit(function() {
