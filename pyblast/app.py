@@ -25,6 +25,8 @@ urls = (
 
 app = web.application(urls, globals())
 
+application = app.wsgifunc()
+
 def render_template(template_name, base_template=None, **context):
     extensions = context.pop('extensions', [])
     globals = context.pop('globals', {})
