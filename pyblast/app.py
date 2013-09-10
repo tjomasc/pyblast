@@ -165,7 +165,7 @@ class multisequence:
 
 def run(overidden_settings={}):
     settings.merge(overidden_settings)
-    #app.run()
+    return app.wsgifunc()
 
 if __name__ == '__main__':
     app.run()
