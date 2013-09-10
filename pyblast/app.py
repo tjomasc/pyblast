@@ -23,8 +23,6 @@ urls = (
     '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
     )
 
-print urls
-
 app = web.application(urls, globals())
 
 application = app.wsgifunc()
