@@ -15,13 +15,15 @@ PBLAST = ('blastp', 'blastx',)
 settings = settings()
 
 urls = (
-    settings.get('BASE_URL'), 'index',
-    settings.get('BASE_URL')+'results/(.*)/', 'results',
-    settings.get('BASE_URL')+'run/(.*)/', 'start_blast',
-    settings.get('BASE_URL')+'status/(.*)/', 'status',
-    settings.get('BASE_URL')+'sequence/(.*)/(.*)/', 'sequence',
-    settings.get('BASE_URL')+'multisequence', 'multisequence',
+    '{}'.format(settings.get('BASE_URL')), 'index',
+    '{}results/(.*)/'.format(settings.get('BASE_URL')), 'results',
+    '{}run/(.*)/'.format(settings.get('BASE_URL')), 'start_blast',
+    '{}status/(.*)/'.format(settings.get('BASE_URL')), 'status',
+    '{}sequence/(.*)/(.*)/'.format(settings.get('BASE_URL')), 'sequence',
+    '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
     )
+
+print urls
 
 app = web.application(urls, globals())
 
