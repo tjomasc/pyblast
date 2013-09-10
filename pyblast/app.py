@@ -23,11 +23,9 @@ urls = (
     '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
     )
 
-urls = urls
+#app = web.application(urls, globals())
 
-app = web.application(urls, globals())
-
-application = app.wsgifunc()
+#application = app.wsgifunc()
 
 def render_template(template_name, base_template=None, **context):
     extensions = context.pop('extensions', [])
@@ -165,8 +163,11 @@ class multisequence:
         s = sequence()
         return s.GET(qs.db, seqs)
 
+app = None
+
 def run(overidden_settings={}):
     settings.merge(overidden_settings)
+    app = web.application(urls, globals())
     return app.wsgifunc()
 
 if __name__ == '__main__':
