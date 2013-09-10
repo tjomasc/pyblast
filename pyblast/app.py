@@ -14,6 +14,7 @@ PBLAST = ('blastp', 'blastx',)
 
 settings = settings()
 
+'''
 urls = (
     '{}'.format(settings.get('BASE_URL')), 'index',
     '{}results/(.*)/'.format(settings.get('BASE_URL')), 'results',
@@ -22,9 +23,9 @@ urls = (
     '{}sequence/(.*)/(.*)/'.format(settings.get('BASE_URL')), 'sequence',
     '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
     )
+'''
 
 #app = web.application(urls, globals())
-
 #application = app.wsgifunc()
 
 def render_template(template_name, base_template=None, **context):
@@ -165,10 +166,21 @@ class multisequence:
 
 app = None
 
-def run(overidden_settings={}):
+def run(overidden_settings={}, run_server=False):
     settings.merge(overidden_settings)
+    urls = (
+        '{}'.format(settings.get('BASE_URL')), 'index',
+        '{}results/(.*)/'.format(settings.get('BASE_URL')), 'results',
+        '{}run/(.*)/'.format(settings.get('BASE_URL')), 'start_blast',
+        '{}status/(.*)/'.format(settings.get('BASE_URL')), 'status',
+        '{}sequence/(.*)/(.*)/'.format(settings.get('BASE_URL')), 'sequence',
+        '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
+        )
     app = web.application(urls, globals())
-    return app.wsgifunc()
+    if run_server:
+        app.run()
+    else:
+        return app.wsgifunc()
 
 if __name__ == '__main__':
     app.run()
