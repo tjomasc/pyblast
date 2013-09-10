@@ -21,8 +21,8 @@
                 <button type="submit" class="btn btn-default">Get checked sequences</button>
             </div>
             <div class="navbar-form navbar-right">
-                <a class="btn btn-default" href="/?settings={{identifier}}">Re-run BLAST search</a>
-                <a class="btn btn-default" href="/">Run another BLAST search</a>
+                <a class="btn btn-default" href="{{ settings.get('BASE_URL') }}?settings={{identifier}}">Re-run BLAST search</a>
+                <a class="btn btn-default" href="{{ settings.get('BASE_URL') }}">Run another BLAST search</a>
             </div>
         </nav>
         <div class="row details">
@@ -83,7 +83,7 @@
                             <h3>
                                 <input type="checkbox" name="sequences" value="{{h.id}}">
                                 <span class="muted">{{loop.index}}</span>
-                                <a href="/sequence/{{results.details.db}}/{{h.id}}/">&gt;{{h.id}}</a>
+                                <a href="{{ settings.get('BASE_URL') }}sequence/{{results.details.db}}/{{h.id}}/">&gt;{{h.id}}</a>
                                 <small>{{h.def}}</small>
                             </h3>
                             <dl class="dl-horizontal">
@@ -142,4 +142,4 @@
         </div>
     </form>
 </div>
-<script src="/static/js/interface.js?rndm={{rndm}}"></script>
+<script src="{{ settings.get('STATIC_URL') }}js/interface.js?rndm={{rndm}}"></script>

@@ -1,4 +1,4 @@
-<form method="post" action="results/{{uuid}}/" enctype="multipart/form-data" class="blast-form" role="form">
+<form method="post" action="{{ settings.get('BASE_URL') }}results/{{uuid}}/" enctype="multipart/form-data" class="blast-form" role="form">
     <div class="row">
         <div class="form-group-group col-lg-12 box-fasta" id="sequence-input">
             <label for="sequence">Enter a FASTA sequence</label>
