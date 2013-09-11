@@ -4,6 +4,7 @@ import json
 import re
 import hashlib
 import tempfile
+import os
 from lxml import etree
 
 from math_tools import percentile
@@ -99,7 +100,9 @@ def poll(name):
     """
     try:
         with open(name) as results:
-            return results.read()
+            if os.path.getsize(name) > 0:
+                return results.read()
+            raise IOError
     except IOError:
         return False
 
