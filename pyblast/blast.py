@@ -66,7 +66,7 @@ def run_blast(database, program, filestore, file_uuid, sequence, options):
     
     """
 
-    query = [program, '-db', database, '-outfmt', '5', '-query', '-', '-out', "{0}/{1}.xml".format(filestore, file_uuid), '-max_target_seqs', '50']
+    query = [program, '-db', database, '-outfmt', '5', '-query', '-', '-out', "{0}{1}.xml".format(filestore, file_uuid), '-max_target_seqs', '50']
     exclude = [
         '-db',
         '-query',
