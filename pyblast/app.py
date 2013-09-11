@@ -7,7 +7,7 @@ import web
 from jinja2 import Environment, Template, FileSystemLoader
 
 from config import settings
-from blast import get_blast_databases, run_blast, get_sequence_from_database, process_blast_result
+from blast import get_blast_databases, run_blast, get_sequence_from_database, process_blast_result, get_blast_database_from_title
 
 NBLAST = ('blastn', 'tblastn', 'tblastx',)
 PBLAST = ('blastp', 'blastx',)
@@ -106,7 +106,8 @@ class start_blast:
         options = web.input()
         web.header('Content-type', 'application/json')
         try:
-            database = settings.get('BLAST_DATABASE_PATH')+options.database
+            database = get_blast_database_from_title(settings.get('BLAST_EXECUTABLE_PATH'),settings.get('BLAST_DATABASE_PATH'),options.database)
+            #database = settings.get('BLAST_DATABASE_PATH')+options.database
             program = settings.get('BLAST_EXECUTABLE_PATH')+options.program
             sequence = options.sequence
             advanced = options.advanced

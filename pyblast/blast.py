@@ -30,6 +30,15 @@ def get_blast_databases(exe_loc, db_loc):
         databases[f[1].lower()].append({'location': f[0], 'title': f[2]})
     return databases
 
+def get_blast_database_from_title(exe_loc, db_loc, title):
+    """
+    For a give title get the actual name of the database (it may differ from title)
+    """
+    for d in get_blast_databases(exe_loc, db_loc):
+        if title == d['title']:
+            return d['location'] 
+
+
 def get_sequence_from_database(exe_loc, db, seq_id):
     """
     Extract a sequence from the given BLAST database and return it
