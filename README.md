@@ -72,8 +72,6 @@ uwsgi --master --socket /var/run/blast.sock --chmod-socket --workers 5 \
  --logto /srv/www/example.org/logs/wsgi-blast.log
 ```
 
-You would place the 
-
 #### nginx
 
 ```

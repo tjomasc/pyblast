@@ -1,0 +1,54 @@
+<!doctype HTML>
+<html>
+    <head>
+        {% block title %}
+            <title>{{title}}</title>
+        {% endblock %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="/static/images/favicon.ico">
+        <link href="/static/css/styles.css" rel="stylesheet", media="screen">
+        <link href="/static/blast/css/styles.css" rel="stylesheet", media="screen">
+        {% block css %}{% endblock %}
+        {% block extracss %}{% endblock %}
+    </head>
+    <body>
+        <header class="site-header">
+            <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a href="/" class="navbar-brand navbar-image-brand">
+                            <img src="/static/images/logo_header.png" width="97px" height="40px" alt="Example Genome Resource">
+                        </a>
+                    </div>
+                    <div class="navbar-collapse navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="/about">About</a></li>
+                            <li><a href="/downloads">Downloads</a></li>
+                            <li><a href="/blast/">BLAST</a></li>
+                        </ul>
+                        <form role="search" class="navbar-form navbar-right">
+                            <div class="form-group">
+                                <input type="text" placeholder="e.g. P53, ENSMUSG00000059552" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-default">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        {% block content %}{% endblock %}
+
+        {% block extrajs %}{% endblock %}
+
+        <script src="/static/js/jquery-1.10.2.min.js"></script>
+        <script src="/static/js/bootstrap.js"></script>
+        {% block js %}{% endblock %}
+    </body>
+</html>
