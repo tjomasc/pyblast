@@ -21,7 +21,7 @@ def get_blast_databases(exe_loc, db_loc):
         found = subprocess.check_output([exe_loc+'blastdbcmd', '-list', db_loc, '-list_outfmt', "'%f %p %t'"])
     except:
         found = ''
-    found = [entry.split(' ') for entry in re.split(r'\n', re.sub(r'\'', '', found)) if len(entry) > 1] 
+    found = [entry.split(' ',2) for entry in re.split(r'\n', re.sub(r'\'', '', found)) if len(entry) > 1] 
     databases = {}
     for f in found:
         if f[1].lower() not in databases:
