@@ -10,6 +10,8 @@ $(document).ready(function(){
         }
         document.title = 'BLAST search error. Code '+jqXHR.status;
 
+        window.clearInterval(checkStatusTimer);
+
         var message = ''
         if(jqXHR.status == 400) {
             message = '<p>Some of the values entered for your BLAST search where either missing or incorrect.</p><p>Please <a href="#" class="back-link">go back to the options page</a> and check everything is correct</p>'
@@ -30,17 +32,6 @@ $(document).ready(function(){
             var checkingAlert = $('<div class="checking-alert alert alert-info"><strong>Checking BLAST status:</strong> Results will be returned once the search has completed</div>').hide();
             holdingInfoDiv.children('.spinner-container').before(checkingAlert);
             checkingAlert.slideDown();
-            /*if($('.spinner-container').length == 0) {
-                var spinner = $('<div class="spinner-container"></div>');
-                holdingInfoDiv.append(spinner);
-                spinner.spin({
-                    lines: 7,
-                    radius: 25,
-                    length: 30,
-                    color: '#428BCA'
-                });
-            }
-            */
         }
         $.ajax({
             type: 'GET',
