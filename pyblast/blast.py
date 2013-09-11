@@ -34,7 +34,11 @@ def get_blast_database_from_title(exe_loc, db_loc, title):
     """
     For a give title get the actual name of the database (it may differ from title)
     """
-    for d in get_blast_databases(exe_loc, db_loc):
+    database_list = get_blast_databases(exe_loc, db_loc)
+    flat = []
+    for k,l in database_list.iteritems():
+        flat.extend(l)
+    for d in flat:
         if title == d['title']:
             return d['location'] 
 
