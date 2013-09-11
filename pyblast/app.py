@@ -175,7 +175,7 @@ def run(overidden_settings={}, run_server=False):
         '{}run/(.*)/'.format(settings.get('BASE_URL')), 'start_blast',
         '{}status/(.*)/'.format(settings.get('BASE_URL')), 'status',
         '{}sequence/(.*)/(.*)/'.format(settings.get('BASE_URL')), 'sequence',
-        '{}multisequence'.format(settings.get('BASE_URL')), 'multisequence',
+        '{}multisequence/'.format(settings.get('BASE_URL')), 'multisequence',
         )
     app = web.application(urls, globals())
     if run_server:
