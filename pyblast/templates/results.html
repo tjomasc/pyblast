@@ -83,8 +83,9 @@
                             <h3>
                                 <input type="checkbox" name="sequences" value="{{h.id}}">
                                 <span class="muted">{{loop.index}}</span>
-                                <a href="{{ settings.get('BASE_URL') }}sequence/{{results.details.db}}/{{h.id}}/">&gt;{{h.id}}</a>
+                                <a href="{{ settings.get('EXTERNAL_DETAILS_URL') }}/{{h.id}}/">&gt;{{h.id}}</a>
                                 <small>{{h.def}}</small>
+                                <small class="pull-right"><a href="{{ settings.get('BASE_URL') }}sequence/{{results.details.db}}/{{h.id}}/">Get sequence</a></small>
                             </h3>
                             <dl class="dl-horizontal">
                                 <dt>Matches</dt>

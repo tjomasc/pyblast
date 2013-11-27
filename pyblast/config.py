@@ -7,6 +7,7 @@ class settings:
         'BASE_TEMPLATE': 'base.html',
         'BASE_URL': '/',
         'STATIC_URL': '/static/',
+        'EXTERNAL_DETAILS_URL': '',
     }
 
     def merge(self, new):
