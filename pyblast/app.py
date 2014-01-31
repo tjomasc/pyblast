@@ -57,9 +57,9 @@ class index:
         programs = {'nucleotide': NBLAST, 'protein': PBLAST}
         qs = web.input()
         identifier = qs.get('settings')
-        db = qs.get('db')
-        pgrm = qs.get('pgrm')
-        seq = qs.get('seq')
+        db = qs.get('db', '')
+        pgrm = qs.get('pgrm', '')
+        seq = qs.get('seq', '')
         adv = ''
         if identifier is not None:
             with open('{0}{1}.json'.format(settings.get('BLAST_RESULTS_PATH'), identifier)) as sp:
