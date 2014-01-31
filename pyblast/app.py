@@ -49,14 +49,17 @@ def render_template(template_name, base_template=None, **context):
     return jinja_env.get_template(template_name).render(context)
 
 class index:
+    def POST(self):
+        return self.GET()
+
     def GET(self):
         databases = get_blast_databases(settings.get('BLAST_EXECUTABLE_PATH'), settings.get('BLAST_DATABASE_PATH'))
         programs = {'nucleotide': NBLAST, 'protein': PBLAST}
         qs = web.input()
         identifier = qs.get('settings')
-        db = ''
-        pgrm = ''
-        seq = ''
+        db = qs.get('db')
+        pgrm = qs.get('pgrm')
+        seq = qs.get('seq')
         adv = ''
         if identifier is not None:
             with open('{0}{1}.json'.format(settings.get('BLAST_RESULTS_PATH'), identifier)) as sp:
