@@ -84,8 +84,13 @@
                                 <input type="checkbox" name="sequences" value="{{h.id}}">
                                 <span class="muted">{{loop.index}}</span>
                                 <!--<a href="{{ settings.get('EXTERNAL_DETAILS_URL') }}/{{h.def}}/">&gt;{{h.id}}</a>-->
-                                <span>&gt;{{h.id}}</span>
-                                <small>{{h.def}}</small>
+                                {% for def in settings.get('LINKED_DEFS') %}
+                                {% if h.def|startswith(def) %}
+                                    <a href="{{ settings.get('EXTERNAL_DETAILS_URL') }}/{{h.def}}/">&gt;{{h.def}}</a>
+                                {% endif %}
+                                {% else %}
+                                    <span>{{h.def}}</span>
+                                {% endfor %}
                                 <small class="pull-right"><a href="{{ settings.get('BASE_URL') }}sequence/{{results.details.db}}/{{h.id}}/">Get sequence</a></small>
                             </h3>
                             <dl class="dl-horizontal">
@@ -134,7 +139,9 @@
                                         <dd>{{hsp.gaps}}/{{hsp.align_length}} ({{"%.2f"|format(hsp.gaps_percent)}}%)</dd>
                                     </dl>
 
-                                    <pre>{{hsp.formatted}}</pre>
+                                    <div class="container">
+                                    {{hsp.formatted}}
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -144,4 +151,4 @@
         </div>
     </form>
 </div>
-<script src="{{ settings.get('STATIC_URL') }}js/interface.js?rndm={{rndm}}"></script>
+{#<script src="{{ settings.get('STATIC_URL') }}js/interface.js?rndm={{rndm}}"></script>#}

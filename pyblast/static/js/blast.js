@@ -38,6 +38,13 @@ $(document).ready(function(){
             url: STATUS_ENDPOINT,
             success: function(data) {
                 if(data.active == false) {
+                    window.location.replace(window.location.href);
+                } else {
+                    document.title = 'BLAST still running...'
+                    checkStatusTimer = window.setInterval(checkStatus, 2000);
+                }
+                /*
+                if(data.active == false) {
                     window.clearInterval(checkStatusTimer);
                     document.title = "BLAST complete, showing all results";
                     holdingInfoDiv.slideUp();
@@ -54,6 +61,7 @@ $(document).ready(function(){
                     document.title = 'BLAST still running...'
                     checkStatusTimer = window.setInterval(checkStatus, 2000);
                 }
+                */
             },
             error: blastError,
             dataType: 'json',

@@ -19,6 +19,9 @@
             {% endif %}
         </div>
         <div id="blast-results">
+            {% if exists %}
+                {% include 'results.html' %}
+            {% endif %}
         </div>
     </div>
     <div class="modal hide" id="seqmodal">
@@ -47,5 +50,10 @@
     <script src="{{ settings.get('STATIC_URL') }}js/spin.min.js"></script>
     <script src="{{ settings.get('STATIC_URL') }}js/jquery.spin.js"></script>
     <script src="{{ settings.get('STATIC_URL') }}js/alignment_graph.js"></script>
+    <script src="{{ settings.get('STATIC_URL') }}js/interface.js?rndm={{rndm}}"></script>
+    {% if not exists %}
     <script src="{{ settings.get('STATIC_URL') }}js/blast.js?rndm={{rndm}}"></script>
+    {% else %}
+    <script>$(document).ready(function() { alignments.create(); });</script>
+    {% endif %}
 {% endblock %}

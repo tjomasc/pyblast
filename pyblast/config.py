@@ -8,6 +8,7 @@ class settings:
         'BASE_URL': '/',
         'STATIC_URL': '/static/',
         'EXTERNAL_DETAILS_URL': '',
+        'LINKED_DEFS': [],
     }
 
     def merge(self, new):

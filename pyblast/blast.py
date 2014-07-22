@@ -6,12 +6,19 @@ import hashlib
 import tempfile
 import os
 from lxml import etree
+import pprint
 
 from math_tools import percentile
 
 def get_blast_databases(exe_loc, db_loc):
     """ 
     Look for BLAST databases using in given path and return a list 
+
+    Args:
+        exe_loc: Location (directory) of the BLAST executables.
+        db_loc: Directory containing the BLAST DB.
+    Returns:
+        A dict containing lists of databases available.
 
     # Test it!
     >>> get_blast_databases('/Users/work/Projects/pyBlast/bin/', '/Users/work/Projects/pyBlast/db/')
@@ -33,6 +40,14 @@ def get_blast_databases(exe_loc, db_loc):
 def get_blast_database_from_title(exe_loc, db_loc, title):
     """
     For a give title get the actual name of the database (it may differ from title)
+
+    Args:
+        exe_loc: Location (directory) of the BLAST executables.
+        db_loc: Directory containing the BLAST DB.
+        title: The title of the BLAST database to search for.
+    Returns:
+        The location of the BLAST database.
+
     """
     database_list = get_blast_databases(exe_loc, db_loc)
     flat = []
@@ -41,11 +56,19 @@ def get_blast_database_from_title(exe_loc, db_loc, title):
     for d in flat:
         if title == d['title']:
             return d['location'] 
+    return False
 
 
 def get_sequence_from_database(exe_loc, db, seq_id):
     """
     Extract a sequence from the given BLAST database and return it
+
+    Args:
+        exe_loc: Directory containing BLAST executables.
+        db: The database to get sequence from.
+        seq_id: The sequence ID of the sequence to get.
+    Returns:
+        The sequence if found else an empty string
 
     # Test:
     >>> get_sequence_from_database('/Users/work/Projects/pyBlast/bin/', '/Users/work/Projects/pyBlast/db/yeast.nt', 'gi|6226515|ref|NC_001224.1|')
@@ -59,6 +82,13 @@ def get_sequence_from_database(exe_loc, db, seq_id):
 def parse_extra_options(option_string, exclude=[]):
     """
     Create an list of options filtering out excluded options
+
+    Args:
+        option_string: A string containing extra blast options.
+        exclude: Options to exclude from the generated list.
+    Returns:
+        A list of options except those in exclude
+
     """
     options = re.findall(r'((-\w+) ([\w\d\.]+)?)\s?', option_string)
     extras = []
@@ -70,6 +100,16 @@ def parse_extra_options(option_string, exclude=[]):
 def run_blast(database, program, filestore, file_uuid, sequence, options):
     """ 
     Perform a BLAST search on the given database using the given query 
+
+    Args:
+        database: The database to search (full path).
+        program: The program to use (e.g. BLASTN, TBLASTN, BLASTX).
+        filestore: The directory to store the XML output.
+        file_uuid: A unique identifier for the filename.
+        sequence: The sequence to BLAST.
+        options: Any extra options to pass to the BLAST executable.
+    Returns:
+        A tuple containing the stdout and stderr of the program.
 
     # Test:
     >>> seq = ">test\\nTTCATAATTAATTTTTTATATATATATTATATTATAATATTAATTTATATTATAAAAATAATATTTATTATTAAAATATT\\nTATTCTCCTTTCGGGGTTCCGGCTCCCGTGGCCGGGCCCCGGAATTATTAATTAATAATAAATTATTATTAATAATTATT\\n>test 2\\nAATGGTATTAGATTCAGTGAATTTGGTACAAGACGTCGTAGATCTCTGAAGGCTCAAGATCTAATTATGCAAGGAATCATGAAAGCTGTGAACGGTAACCCAGACAGAAACAAATCGCTATTATTAGGCACATCAAATATTTTATTTGCCAAGAAATATGGAGTCAAGCCAATCGGTACTGTGGCTCACGAGTGGGTTATGGGAGTCGCTTCTATTAGTGAAGATTATTTGCATGCCAATAAAAATGCAATGGATTGTTGGATCAATACTTTTGGTGCAAAAAATGCTGGTTTAGCATTAACGGATACTTTTGGAACTGATGACTTTTTAAAATCATTCCGTCCACCATATTCTGATGCTTACGTCGGTGTTAGACAAGATTCTGGAGACCCAGTTGAGTATACCAAAAAGATTTCCCACCATTACCATGACGTGTTGAAATTGCCTAAATTCTCGAAGATTATCTGTTATTCCGATTCTTTGAACGTCGAAAAGGCAATAACTTACTCCCATGCAGCTAAAGAGAATG"
@@ -110,6 +150,11 @@ def run_blast(database, program, filestore, file_uuid, sequence, options):
 def poll(name):
     """
     Check if the file <name> has been created, indicating BLAST has finished, and return results
+
+    Args:
+        name: The filename of the file that was created in a BLAST search.
+    Returns:
+        The file or False if it has not yet been created.
     """
     try:
         with open(name) as results:
@@ -120,46 +165,82 @@ def poll(name):
         return False
 
 def chunk_string(s, l=10):
+    """
+    Split a string into chunks of a set length.
+
+    Args:
+        s: The string to chunk.
+        l: The length of the chunks.
+    Returns:
+        A list containing the string chunks.
+    """
     return [s[i:i+l] for i in range(0,len(s),l)]
 
 def format_bases(bases):
+    """
+    Generate HTML that colours the bases in a string.
+
+    Args:
+        bases: A string containing a genetic sequence.
+    Returns:
+        An HTML string.
+    """
     formatted = ''
     for b in bases:
         formatted += '<span class="base-{}">{}</span>'.format(b,b)
     return formatted
         
 def create_formatted_sequences(hsp):
+    """
+    Take a sequence and format it for display.
 
-    query = chunk_string(hsp['query_seq'], 60)
-    match = chunk_string(hsp['midline'], 60)
-    subject = chunk_string(hsp['hit_seq'], 60)
+    Args:
+        hsp: A dict containing the sequence information.
+    Returns:
+        An HTML string of the formatted sequence.
+    """
+
+    cl = 60
+
+    query = chunk_string(hsp['query_seq'], cl)
+    match = chunk_string(hsp['midline'], cl)
+    subject = chunk_string(hsp['hit_seq'], cl)
 
     output = ""
     for ln, line in enumerate(query):
-
-        fpad = len(hsp['hit_from'])
-        tpad = len(hsp['hit_to'])
-        pad = fpad if fpad > tpad else tpad
-
-        query_from = int(hsp['query_from']) if ln == 0 else int(hsp['query_from'])+(ln*60)
-        query_to = query_from+59
-        subject_from = int(hsp['hit_from']) if ln == 0 else int(hsp['hit_from'])+(ln*60)
-        subject_to = subject_from+59
+        query_from = int(hsp['query_from']) if ln == 0 else int(hsp['query_from'])+(ln*cl)
+        query_to = query_from+(cl-1)
+        subject_from = int(hsp['hit_from']) if ln == 0 else int(hsp['hit_from'])+(ln*cl)
+        subject_to = subject_from+(cl-1)
 
         qseq = format_bases(line)
         sseq = format_bases(subject[ln])
 
-        output += """
-Query    {qsnum}  {qseq}  {qenum}
-         {mspad}  {match}
-Subject  {ssnum}  {sseq}  {senum}
-""".format(qseq=qseq,
+        output += '''
+<div class="row">
+<pre class="col-xs-1 seq-col-sm">Query
+
+Subject
+</pre>
+<pre class="col-xs-1 seq-col-sm">{qsnum}
+
+{ssnum}
+</pre>
+<pre class="col-xs-7 seq-col-lg">{qseq}
+{match}
+{sseq}
+</pre>
+<pre class="col-xs-1 seq-col-sm">{qenum}
+
+{senum}
+</pre>
+</div>
+'''.format(qseq=qseq,
     match=match[ln],
-    mspad="".join([" " for i in range(pad)]),
     sseq=sseq,
-    qsnum=str(query_from).rjust(pad),
+    qsnum=str(query_from),
     qenum=query_to,
-    ssnum=str(subject_from).rjust(pad),
+    ssnum=str(subject_from),
     senum=subject_to
     )
 
@@ -167,7 +248,14 @@ Subject  {ssnum}  {sseq}  {senum}
 
 def process_blast_result(filecontents, cutoff=0.0001):
     """
-    With the give contents proccess the blast results into a usable format
+    Take a BLAST XML results file and process into a usable dict.
+
+    Args:
+        filecontents: The contents of a BLAST XML file.
+        cutoff: The cutoff for which a sequence is considered relevant.
+    Returns:
+        A dict of the results.
+
     """
     results = {'results':[], 'messages':[]}
     messages = []
@@ -211,17 +299,6 @@ def process_blast_result(filecontents, cutoff=0.0001):
                 'hits': []
             }
 
-            '''
-            bit_score = []
-            for ht in it.findall('Iteration_hits/Hit'):
-                for hs in ht.findall('.//Hsp'):
-                    bit_score.append(float(hs.xpath('string(Hsp_bit-score/text())')))
-            if show_all:
-                bit_score_filter = 0
-            else:
-                bit_score_filter = percentile(bit_score, 0.25)
-            print bit_score_filter
-            '''
             for ht in it.findall('Iteration_hits/Hit'):
                 h = {
                     'num': ht.xpath('string(Hit_num/text())'),
@@ -255,16 +332,13 @@ def process_blast_result(filecontents, cutoff=0.0001):
                     }
                     hsp['identity_percent'] = int(hsp['identity'])/float(hsp['align_length'])*100
                     hsp['gaps_percent'] = int(hsp['gaps'])/float(hsp['align_length'])*100
-                    '''
-                    if hsp['query_from'] < query_from:
-                        query_from = hsp['query_from']
-                    if hsp['query_to'] > query_to:
-                        query_to = hsp['query_to']
-                    '''
                     if float(hsp['evalue']) < cutoff: #float(hsp['bit_score']) > bit_score_filter:
                         query_from.append(int(hsp['query_from']))
                         query_to.append(int(hsp['query_to']))
                         hsp['formatted'] = create_formatted_sequences(hsp)
+                        hsp['query_chunk'] = chunk_string(hsp['query_seq'], 60)
+                        hsp['match_chunk'] = chunk_string(hsp['midline'], 60)
+                        hsp['subject_chunk'] = chunk_string(hsp['hit_seq'], 60)
                         h['hsps'].append(hsp)
                 if len(h['hsps']) > 0:
                     if sum(query_from) > sum(query_to):

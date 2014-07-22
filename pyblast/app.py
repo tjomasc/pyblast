@@ -7,7 +7,7 @@ import web
 from jinja2 import Environment, Template, FileSystemLoader
 
 from config import settings
-from blast import get_blast_databases, run_blast, get_sequence_from_database, process_blast_result, get_blast_database_from_title
+from blast import get_blast_databases, run_blast, get_sequence_from_database, process_blast_result, get_blast_database_from_title, poll
 
 NBLAST = ('blastn', 'tblastn', 'tblastx',)
 PBLAST = ('blastp', 'blastx',)
@@ -44,9 +44,14 @@ def render_template(template_name, base_template=None, **context):
         extensions=extensions,
         )
 
+    jinja_env.filters['startswith'] = startswith
+
     jinja_env.globals.update(globals)
 
     return jinja_env.get_template(template_name).render(context)
+
+def startswith(value, start):
+    return value.startswith(start)
 
 class index:
     def POST(self):
@@ -96,12 +101,26 @@ class results:
         )
 
     def GET(self, identifier):
+        file_loc = "{0}{1}.xml".format(settings.get('BLAST_RESULTS_PATH'), identifier)
+        qs = web.input()
+        cutoff = qs.get('cutoff')
+        processed = None
+        exists = False
+        with open(file_loc) as results:
+            if cutoff is not None:
+                processed = process_blast_result(results.read(), cutoff=float(cutoff)) 
+            else:
+                processed = process_blast_result(results.read())            
+            exists = True
         return render_template('results_container.html', 
             base_template = settings.get('BASE_TEMPLATE'),
             settings = settings,
             title="pyBlast | BLAST results", 
             identifier = identifier,
             rndm = random.random(), 
+            uuid = uuid.uuid4(),
+            results = processed,
+            exists = exists,
         )
 
 class start_blast:
@@ -134,6 +153,7 @@ class status:
         qs = web.input()
         cutoff = qs.get('cutoff')
         with open(file_loc) as results:
+            '''
             if cutoff is not None:
                 processed = process_blast_result(results.read(), cutoff=float(cutoff)) 
             else:
@@ -145,7 +165,8 @@ class status:
                 uuid = uuid.uuid4(), 
                 identifier = identifier,
             )
-            return json.dumps({'active': False, 'results': processed, 'results_page': results_page})
+            '''
+            return json.dumps({'active': False}) #, 'results': processed, 'results_page': results_page})
         return json.dumps({'active': False, 'err': 'There has been an error'})
 
 class sequence:
